@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<suite name="Automation DummyApi">
+    <test name="AutoMethod">
+        <classes>
+            <class name="dummyapi.PostUser"/>
+            <class name="dummyapi.DeleteUser"/>
+            <class name="dummyapi.getUser"/>
+            <class name="dummyapi.PutUser"/>
+            <class name="dummyapi.validateJsonSchema"/>
+        </classes>
+    </test>
+
+
+</suite>

@@ -1,0 +1,77 @@
+plugins {
+    id 'java'
+    id("io.qameta.allure") version "2.11.0"
+}
+
+group = 'org.example'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    testImplementation group: 'org.testng', name: 'testng', version: '7.7.1'
+    testImplementation group: 'io.rest-assured', name: 'rest-assured', version: '5.3.0'
+    testImplementation group: 'org.json', name: 'json', version: '20220924'
+    testImplementation group: 'io.rest-assured', name: 'json-schema-validator', version: '4.5.1'
+
+
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.9.0'
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine:5.9.0'
+
+    testImplementation('io.github.bonigarcia:webdrivermanager:5.3.0')
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-java', version: '4.17.0'
+
+    testImplementation 'io.cucumber:cucumber-java:7.8.1'
+    testImplementation 'io.cucumber:cucumber-junit:7.8.1'
+}
+
+test {
+    useTestNG{
+        suites "src/test/resources/testng.xml"
+    }
+    testLogging {
+        events "Passed", "Failed", "Skipped"
+    }
+
+    useJUnitPlatform()
+}
+
+
+    configurations {
+        cucumberRuntime {
+            extendsFrom testImplementation
+        }
+    }
+
+
+
+//task cucumberTest(type: Test) {
+//    useTestNG()
+//    options {
+//        includeTags 'api'
+//    }
+//    systemProperty 'cucumber.options', '--tags @api'
+//    include '**/*Test.class'
+//}
+
+def tags = (findProperty('tags') == null) ? 'not @exclude' : findProperty('tags') + ' and not @exclude'
+
+task cucumber() {
+    description("Running Cucumber Test")
+    dependsOn assemble, compileTestJava
+    doLast {
+        javaexec {
+            main = "io.cucumber.core.cli.Main"
+            classpath = configurations.cucumberRuntime + sourceSets.main.output + sourceSets.test.output
+            args = [
+                    '--plugin', 'html:reports/index.html',
+                    '--plugin', 'pretty',
+                    '--glue', 'Step',
+                    '--tags', "${tags}",
+                    'src/test/resources'
+            ]
+        }
+    }
+}
